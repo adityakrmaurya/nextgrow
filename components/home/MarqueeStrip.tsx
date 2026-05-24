@@ -1,10 +1,3 @@
-/* ─────────────────────────────────────────────────────────────────────────────
-   MarqueeStrip — full-width ticker sitting immediately below the Hero.
-   Two tracks: forward (28 s, default) + reverse (22 s, opposite direction).
-   Pure CSS — no "use client", no Framer Motion. Pause on hover via Tailwind
-   group-hover utility.
-───────────────────────────────────────────────────────────────────────────── */
-
 const INDUSTRIES = [
   "QSR",
   "Healthcare",
@@ -18,25 +11,27 @@ const INDUSTRIES = [
   "Fitness",
 ] as const;
 
-/* Separator rendered between every item */
-function Sep() {
+function Sep({ faint }: { faint?: boolean }) {
   return (
-    <span aria-hidden="true" className="mx-6 text-ink/60 text-xl select-none">
-      ◆
+    <span aria-hidden="true" className={`mx-6 text-lg select-none ${faint ? "text-ink/30" : "text-ink/50"}`}>
+      ·
     </span>
   );
 }
 
-/* One full pass of industry labels + separators */
-function ItemList() {
+function ItemList({ small }: { small?: boolean }) {
   return (
     <>
       {INDUSTRIES.map((name, i) => (
         <span key={i} className="inline-flex items-center">
-          <span className="font-display text-2xl tracking-[0.12em] uppercase text-ink whitespace-nowrap">
+          <span
+            className={`font-display tracking-[0.12em] uppercase whitespace-nowrap ${
+              small ? "text-base text-ink/50" : "text-2xl text-ink"
+            }`}
+          >
             {name}
           </span>
-          <Sep />
+          <Sep faint={small} />
         </span>
       ))}
     </>
@@ -45,41 +40,29 @@ function ItemList() {
 
 export default function MarqueeStrip() {
   return (
-    /* aria-hidden: content is decorative — industries are listed in Services section */
-    <div aria-hidden="true" className="w-full bg-lime overflow-hidden">
+    <div className="w-full bg-lime overflow-hidden">
+      {/* Label row */}
+      <div className="px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 pt-4 pb-1">
+        <span className="font-body text-xs uppercase tracking-[0.25em] text-ink/50">
+          Industries We&apos;ve Grown
+        </span>
+      </div>
 
-      {/* ── Track 1 — left-to-right (default marquee direction) ── */}
-      <div className="group border-b border-ink/10 py-4 overflow-hidden">
-        {/*
-          Two copies of ItemList in a single flex container.
-          `.animate-marquee` scrolls exactly -50% (one copy width), then
-          jumps back to 0 — creating a seamless infinite loop.
-          `group-hover:[animation-play-state:paused]` freezes on hover.
-        */}
-        <div
-          className="animate-marquee group-hover:[animation-play-state:paused]"
-          aria-hidden="true"
-        >
+      {/* Track 1 — forward, full size */}
+      <div className="border-t border-ink/10 py-3 overflow-hidden" aria-hidden="true">
+        <div className="animate-marquee group-hover:[animation-play-state:paused]">
           <ItemList />
           <ItemList />
         </div>
       </div>
 
-      {/* ── Track 2 — right-to-left (reverse + faster speed) ── */}
-      <div className="group py-4 overflow-hidden">
-        <div
-          className="animate-marquee group-hover:[animation-play-state:paused]"
-          style={{
-            animationDirection: "reverse",
-            animationDuration: "22s",
-          }}
-          aria-hidden="true"
-        >
-          <ItemList />
-          <ItemList />
+      {/* Track 2 — reverse, smaller + dimmer, creates depth */}
+      <div className="py-2 pb-4 overflow-hidden" aria-hidden="true">
+        <div className="animate-marquee-reverse">
+          <ItemList small />
+          <ItemList small />
         </div>
       </div>
-
     </div>
   );
 }

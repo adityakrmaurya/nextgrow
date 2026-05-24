@@ -35,7 +35,34 @@ export default function CTABanner() {
       {/* Dot grid background decoration */}
       <DotGrid />
 
-      {/* Subtle radial vignette — slightly darker lime at edges */}
+      {/* Animated ink blob — gives the lime background depth and movement */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute z-0 animate-blob"
+        style={{
+          width: "60vw",
+          height: "60vw",
+          background: "radial-gradient(ellipse, rgba(10,10,10,0.07) 0%, transparent 70%)",
+          top: "-20%",
+          right: "-10%",
+          animationDelay: "-5s",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute z-0 animate-blob"
+        style={{
+          width: "40vw",
+          height: "40vw",
+          background: "radial-gradient(ellipse, rgba(10,10,10,0.05) 0%, transparent 70%)",
+          bottom: "-10%",
+          left: "5%",
+          animationDelay: "-10s",
+          animationDuration: "20s",
+        }}
+      />
+
+      {/* Subtle radial vignette */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-0"
@@ -61,19 +88,25 @@ export default function CTABanner() {
           </span>
         </motion.div>
 
-        {/* Main headline */}
-        <div className="mb-8 md:mb-10 overflow-hidden">
-          <motion.h2
-            initial={{ opacity: 0, x: -40 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
-            transition={{ duration: 0.85, delay: 0.06, ease: EASE_OUT_EXPO }}
+        {/* Main headline — curtain reveal */}
+        <div className="mb-8 md:mb-10">
+          <h2
             className="font-display text-ink leading-[0.88]"
             style={{ fontSize: "clamp(3rem, 7vw, 6rem)" }}
           >
-            READY TO GO FROM
-            <br />
-            HERE TO EVERYWHERE?
-          </motion.h2>
+            {["GROW SMARTER.", "GROW FASTER."].map((line, i) => (
+              <span key={i} className="block overflow-hidden">
+                <motion.span
+                  className="block"
+                  initial={{ y: "105%" }}
+                  animate={isInView ? { y: "0%" } : { y: "105%" }}
+                  transition={{ duration: 0.85, delay: 0.06 + i * 0.14, ease: EASE_OUT_EXPO }}
+                >
+                  {line}
+                </motion.span>
+              </span>
+            ))}
+          </h2>
         </div>
 
         {/* Sub-copy */}
@@ -129,11 +162,42 @@ export default function CTABanner() {
           </a>
         </motion.div>
 
+        {/* Getting Started — 5-step onboarding process */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+          transition={{ duration: 0.6, delay: 0.42, ease: EASE_OUT_EXPO }}
+          className="mb-10 md:mb-12"
+        >
+          <p className="font-body text-[0.65rem] font-bold uppercase tracking-[0.22em] text-ink/50 mb-5">
+            Getting started is simple
+          </p>
+          <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-0">
+            {[
+              "Initial Consultation",
+              "Business Assessment",
+              "Strategic Proposal",
+              "Execution Planning",
+              "Launch & Optimise",
+            ].map((step, i) => (
+              <div key={step} className="flex items-center">
+                <div className="flex items-center gap-2 py-2">
+                  <span className="font-display text-[0.65rem] text-ink/40 tracking-widest">0{i + 1}</span>
+                  <span className="font-body text-xs font-semibold text-ink/70">{step}</span>
+                </div>
+                {i < 4 && (
+                  <span aria-hidden="true" className="mx-3 text-ink/25 text-xs">→</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
         {/* Contact info row */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-          transition={{ duration: 0.55, delay: 0.38, ease: EASE_OUT_EXPO }}
+          transition={{ duration: 0.55, delay: 0.52, ease: EASE_OUT_EXPO }}
           className="flex flex-wrap items-center gap-x-6 gap-y-2"
         >
           {/* Divider dot */}

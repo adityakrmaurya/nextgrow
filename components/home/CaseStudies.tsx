@@ -19,46 +19,46 @@ const caseStudies: CaseStudy[] = [
   {
     client: "Squarro Pizza",
     category: "QSR · Offline Marketing",
-    result: "+45%",
-    resultLabel: "Increase in Store Visits",
+    result: "3.2x",
+    resultLabel: "ROAS Achieved · 60% Walk-In Lift in 60 Days",
     description:
-      "Hyperlocal outdoor campaign and social activation that drove measurable foot traffic to Squarro's Lucknow outlets within 60 days.",
+      "Hyperlocal Meta ads (3km radius), offer-driven creatives, offline balloon activations, and free tasting campaigns — all driving measurable foot traffic within 60 days.",
     tags: ["Hoardings", "Social Media", "Hyperlocal"],
   },
   {
     client: "Medinity Hospital",
     category: "Healthcare · Digital Marketing",
     result: "150+",
-    resultLabel: "Qualified Leads Per Month",
+    resultLabel: "Qualified Leads/Month · 35% Lead-to-Consult Rate",
     description:
-      "Performance-driven Meta and Google campaigns targeting high-intent patients in Lucknow, delivered consistently at low CPL.",
+      "Multi-step lead funnels, trust-based creatives with doctor credentials, and A/B tested cost-per-lead optimization — delivered consistently over 6+ months.",
     tags: ["Meta Ads", "Google Ads", "SEO"],
   },
   {
     client: "Amritansh Talks",
     category: "Media · Content & YouTube",
     result: "5K → 45K",
-    resultLabel: "Followers, 250% Engagement Growth",
+    resultLabel: "Followers in 8 Months · 250% Engagement Growth",
     description:
-      "Full YouTube and Instagram strategy that grew an emerging speaker's personal brand to a loyal 45K community in under 8 months.",
+      "Structured content calendar, reel-first distribution model, and cross-platform amplification that built an engaged thought leadership community from scratch.",
     tags: ["YouTube", "Instagram", "Content Strategy"],
   },
   {
     client: "VPV Realty",
     category: "Real Estate · Digital Marketing",
     result: "80+",
-    resultLabel: "Qualified Leads Per Month",
+    resultLabel: "Qualified Leads/Month · 28% Lead-to-Site-Visit Improvement",
     description:
-      "Targeted digital campaigns cutting through Lucknow's saturated real estate market to deliver pre-qualified buyer inquiries.",
+      "Meta lead campaigns with qualification forms, automated nurturing, and coordinated sales follow-up — cutting through Lucknow's saturated real estate market.",
     tags: ["Meta Ads", "Landing Pages", "CRM"],
   },
   {
     client: "Axis Archi",
     category: "Architecture · Branding",
     result: "+180%",
-    resultLabel: "Instagram Growth",
+    resultLabel: "Instagram Growth · 40% Higher Average Project Value",
     description:
-      "Brand identity refresh and social media strategy that repositioned Axis Archi as a premium design firm.",
+      "Brand-focused social media, professional portfolio photography, and premium positioning that repositioned Axis Archi as a top-tier design firm.",
     tags: ["Branding", "Social Media", "Content"],
   },
 ];
@@ -84,7 +84,7 @@ function CaseStudyCard({ study, index, isInView, large = false }: CardProps) {
         delay: index * 0.09,
         ease: EASE_OUT_EXPO,
       }}
-      className="group relative flex flex-col justify-between bg-cream/5 border border-cream/[0.08] p-7 md:p-8 transition-all duration-300 hover:scale-[1.02] hover:border-lime/30 hover:bg-cream/[0.07] active:scale-[0.99] cursor-pointer"
+      className="group relative flex flex-col justify-between bg-cream/5 border border-cream/[0.08] p-7 md:p-8 transition-all duration-300 hover:-translate-y-1 hover:border-lime/30 hover:bg-cream/[0.07] active:scale-[0.99] cursor-pointer"
       style={{
         boxShadow: "inset 0 1px 0 rgba(245,240,232,0.04)",
       }}
@@ -242,17 +242,19 @@ export default function CaseStudies() {
           </motion.div>
 
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <motion.h2
-              initial={{ opacity: 0, y: 22 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 22 }}
-              transition={{ duration: 0.7, delay: 0.08, ease: EASE_OUT_EXPO }}
-              className="font-display text-cream leading-[0.9]"
-              style={{ fontSize: "clamp(2.8rem, 7vw, 6.5rem)" }}
-            >
-              BRANDS WE'VE
-              <br />
-              GROWN
-            </motion.h2>
+            <div className="overflow-hidden">
+              <motion.h2
+                initial={{ clipPath: "inset(0 100% 0 0)" }}
+                animate={isInView ? { clipPath: "inset(0 0% 0 0)" } : { clipPath: "inset(0 100% 0 0)" }}
+                transition={{ duration: 0.9, delay: 0.1, ease: EASE_OUT_EXPO }}
+                className="font-display text-cream leading-[0.9]"
+                style={{ fontSize: "clamp(2.8rem, 7vw, 6.5rem)" }}
+              >
+                BRANDS WE&apos;VE
+                <br />
+                GROWN
+              </motion.h2>
+            </div>
 
             <motion.p
               initial={{ opacity: 0, y: 16 }}

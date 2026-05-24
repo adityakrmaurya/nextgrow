@@ -1,13 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 
-/* ── Shared easing ─────────────────────────────────────── */
 const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as const;
 const DURATION = 0.8;
 
-/* ── Reusable motion preset ────────────────────────────── */
 function fadeUp(delay: number) {
   return {
     initial: { opacity: 0, y: 24 },
@@ -16,7 +14,7 @@ function fadeUp(delay: number) {
   };
 }
 
-/* ── Dot-grid background ───────────────────────────────── */
+/* ── Dot-grid ── */
 function DotGrid() {
   return (
     <div
@@ -31,40 +29,15 @@ function DotGrid() {
   );
 }
 
-/* ── Ghost background word ─────────────────────────────── */
-function GhostWord() {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute bottom-0 right-0 z-0 overflow-hidden select-none"
-      style={{ lineHeight: 0.85 }}
-    >
-      <span
-        className="font-display block text-cream"
-        style={{
-          fontSize: "clamp(12rem, 30vw, 28rem)",
-          opacity: 0.025,
-          letterSpacing: "0.02em",
-          transform: "translateX(12%)",
-          userSelect: "none",
-        }}
-      >
-        GROW
-      </span>
-    </div>
-  );
-}
-
-/* ── Scroll Indicator ──────────────────────────────────── */
+/* ── Scroll Indicator ── */
 function ScrollIndicator() {
   return (
     <motion.div
       className="absolute bottom-20 md:bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: 1.2, duration: 0.6, ease: EASE_OUT_EXPO }}
+      transition={{ delay: 1.5, duration: 0.6, ease: EASE_OUT_EXPO }}
     >
-      {/* Mouse shell */}
       <div className="w-5 h-8 rounded-full border border-cream/40 flex items-start justify-center pt-1.5">
         <motion.div
           className="w-1 h-1.5 rounded-full bg-lime"
@@ -79,100 +52,146 @@ function ScrollIndicator() {
   );
 }
 
-/* ── Stat Pill ─────────────────────────────────────────── */
-interface StatPillProps {
-  value: string;
-  label: string;
-}
-
-function StatPill({ value, label }: StatPillProps) {
+/* ── Stat Pill ── */
+function StatPill({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex items-center gap-2 border border-cream/15 px-4 py-2 rounded-full">
-      <span className="font-display text-cream/70 text-base tracking-wide">
-        {value}
-      </span>
-      <span className="font-body text-cream/50 text-xs uppercase tracking-widest whitespace-nowrap">
-        {label}
-      </span>
+      <span className="font-display text-cream/70 text-base tracking-wide">{value}</span>
+      <span className="font-body text-cream/50 text-xs uppercase tracking-widest whitespace-nowrap">{label}</span>
     </div>
   );
 }
 
-/* ── Hero ──────────────────────────────────────────────── */
+/* ── Hero ── */
 export default function Hero() {
+  const { scrollY } = useScroll();
+  const ghostY = useTransform(scrollY, [0, 600], [0, -110]);
+  const squaresY = useTransform(scrollY, [0, 600], [0, -55]);
+  const blobY = useTransform(scrollY, [0, 600], [0, -40]);
+
   return (
     <section className="relative w-full min-h-[100dvh] bg-ink flex flex-col justify-center overflow-hidden pt-20 md:pt-24">
-      {/* ── Layered backgrounds ── */}
       <DotGrid />
-      <GhostWord />
 
-      {/* ── Subtle radial glow behind headline ── */}
+      {/* Animated gradient blob */}
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute z-0 animate-blob"
+        style={{
+          y: blobY,
+          width: "55vw",
+          height: "55vw",
+          background: "radial-gradient(ellipse, rgba(196,255,0,0.045) 0%, transparent 70%)",
+          top: "5%",
+          left: "-8%",
+        }}
+      />
+
+      {/* Ghost background word — parallax */}
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 right-0 z-0 overflow-hidden select-none"
+        style={{ lineHeight: 0.85, y: ghostY }}
+      >
+        <span
+          className="font-display block text-cream"
+          style={{
+            fontSize: "clamp(12rem, 30vw, 28rem)",
+            opacity: 0.025,
+            letterSpacing: "0.02em",
+            transform: "translateX(12%)",
+          }}
+        >
+          GROW
+        </span>
+      </motion.div>
+
+      {/* Concentric rotated squares — parallax */}
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{ y: squaresY }}
+      >
+        {[0.06, 0.04, 0.025].map((opacity, i) => (
+          <div
+            key={i}
+            className="absolute bottom-0 right-0"
+            style={{
+              width: `${35 + i * 18}vw`,
+              height: `${35 + i * 18}vw`,
+              border: `1px solid rgba(196,255,0,${opacity})`,
+              transform: `translate(${28 + i * 2}%, ${28 + i * 2}%) rotate(45deg)`,
+            }}
+          />
+        ))}
+      </motion.div>
+
+      {/* Radial glow behind headline */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0"
         style={{
           width: "60vw",
           height: "40vw",
-          background:
-            "radial-gradient(ellipse at center, rgba(196,255,0,0.04) 0%, transparent 70%)",
+          background: "radial-gradient(ellipse at center, rgba(196,255,0,0.05) 0%, transparent 70%)",
         }}
       />
 
-      {/* ── Main content ── */}
+      {/* Main content */}
       <div className="relative z-10 flex flex-col justify-center px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 max-w-[1600px] mx-auto w-full py-16 md:py-20">
 
-        {/* ── Eyebrow — line rendered outside motion so it's never invisible ── */}
+        {/* Eyebrow */}
         <motion.div
           {...fadeUp(0)}
           className="mb-6 md:mb-8 flex items-center gap-3"
         >
           <div className="h-px w-8 bg-lime shrink-0" />
           <span className="font-body text-lime text-xs uppercase tracking-[0.25em]">
-            Marketing Technology &amp; Media
+            Grow Smarter. Grow Faster.
           </span>
         </motion.div>
 
-        {/* ── Headline ── */}
+        {/* Headline — curtain reveal (text rises from below overflow clip) */}
         <h1 className="font-display leading-[0.9] mb-8 md:mb-10">
-          {/* Line 1 */}
-          <motion.span
-            {...fadeUp(0.05)}
-            className="block text-cream"
-            style={{
-              fontSize: "clamp(3.5rem, 11vw, 10rem)",
-            }}
-          >
-            FROM HERE TO
-          </motion.span>
-
-          {/* Line 2 — lime accent */}
-          <motion.span
-            {...fadeUp(0.15)}
-            className="block text-lime"
-            style={{
-              fontSize: "clamp(3.5rem, 11vw, 10rem)",
-            }}
-          >
-            EVERYWHERE.
-          </motion.span>
+          <span className="block overflow-hidden">
+            <motion.span
+              className="block text-cream"
+              initial={{ y: "105%" }}
+              animate={{ y: "0%" }}
+              transition={{ duration: 0.95, delay: 0.08, ease: EASE_OUT_EXPO }}
+              style={{ fontSize: "clamp(3.5rem, 11vw, 10rem)" }}
+            >
+              FROM HERE TO
+            </motion.span>
+          </span>
+          <span className="block overflow-hidden">
+            <motion.span
+              className="block text-lime"
+              initial={{ y: "105%" }}
+              animate={{ y: "0%" }}
+              transition={{ duration: 0.95, delay: 0.22, ease: EASE_OUT_EXPO }}
+              style={{ fontSize: "clamp(3.5rem, 11vw, 10rem)" }}
+            >
+              EVERYWHERE.
+            </motion.span>
+          </span>
         </h1>
 
-        {/* ── Subheadline ── */}
+        {/* Subheadline */}
         <motion.p
-          {...fadeUp(0.25)}
-          className="font-body text-cream/60 text-base md:text-lg max-w-xl leading-relaxed mb-10 md:mb-12"
+          {...fadeUp(0.42)}
+          className="font-body text-cream/65 text-base md:text-lg max-w-lg leading-relaxed mb-10 md:mb-12"
         >
-          We connect brands in Tier-1 and Tier-2 India to the audiences that
-          move markets — online, on-ground, and on-screen. One agency.
-          Every medium.
+          We turn marketing spend into measurable outcomes — digital
+          campaigns, offline presence, and on-screen production, all
+          under one roof.
         </motion.p>
 
-        {/* ── CTAs ── */}
+        {/* CTAs */}
         <motion.div
-          {...fadeUp(0.35)}
+          {...fadeUp(0.52)}
           className="flex flex-wrap items-center gap-4 mb-12 md:mb-16"
         >
-          {/* Primary */}
           <Link
             href="/contact"
             className="font-body font-bold text-xs uppercase tracking-widest text-ink bg-lime px-7 py-4 inline-flex items-center gap-2 transition-colors duration-200 hover:bg-lime-dim active:bg-lime-dim focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
@@ -180,31 +199,28 @@ export default function Hero() {
             Book a Strategy Call
             <span aria-hidden="true" className="text-sm">→</span>
           </Link>
-
-          {/* Secondary / ghost */}
           <Link
-            href="/work"
+            href="/case-studies"
             className="font-body font-medium text-xs uppercase tracking-widest text-cream border border-cream/20 px-7 py-4 inline-flex items-center gap-2 transition-colors duration-200 hover:border-lime hover:text-lime focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
           >
             View Case Studies
           </Link>
         </motion.div>
 
-        {/* ── Stats row ── */}
+        {/* Stats row */}
         <motion.div
-          {...fadeUp(0.5)}
+          {...fadeUp(0.65)}
           className="flex flex-wrap items-center gap-3"
         >
-          <StatPill value="20+" label="Brands Served" />
           <StatPill value="300+" label="Outdoor Locations" />
-          <StatPill value="Since 2019" label="Lucknow, India" />
+          <StatPill value="18+ Mo" label="Avg. Retention" />
+          <StatPill value="3.2x" label="ROAS Achieved" />
         </motion.div>
       </div>
 
-      {/* ── Scroll indicator ── */}
       <ScrollIndicator />
 
-      {/* ── Bottom edge lime accent line ── */}
+      {/* Bottom edge lime accent line */}
       <motion.div
         aria-hidden="true"
         className="absolute bottom-0 left-0 h-px bg-lime/20 z-10"

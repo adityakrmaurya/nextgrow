@@ -43,7 +43,12 @@ body {
 ::-webkit-scrollbar-track { background: var(--ink); }
 ::-webkit-scrollbar-thumb { background: var(--lime); }
 
-/* ── Marquee animation ─────────────────────────────── */
+/* ── Custom cursor — hide system cursor on fine-pointer devices ── */
+@media (pointer: fine) {
+  *, *::before, *::after { cursor: none !important; }
+}
+
+/* ── Marquee animations ─────────────────────────────── */
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
@@ -52,6 +57,26 @@ body {
   animation: marquee 28s linear infinite;
   display: flex;
   width: max-content;
+}
+
+@keyframes marquee-reverse {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+.animate-marquee-reverse {
+  animation: marquee-reverse 42s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+/* ── Blob drift — slow ambient movement ─────────────── */
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  33%       { transform: translate(8%, -7%) scale(1.07); }
+  66%       { transform: translate(-5%, 5%) scale(0.94); }
+}
+.animate-blob {
+  animation: blob-drift 16s ease-in-out infinite;
 }
 
 /* ── Fade-up ─────────────────────────────────────────  */
@@ -66,13 +91,15 @@ body {
 /* ── Reduced motion ────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee,
+  .animate-marquee-reverse,
+  .animate-blob,
   .fade-up {
     animation: none;
     transform: none;
     opacity: 1;
   }
-  /* Keep marquee container layout stable when animation is disabled */
-  .animate-marquee {
+  .animate-marquee,
+  .animate-marquee-reverse {
     white-space: nowrap;
     overflow: hidden;
     width: 100%;

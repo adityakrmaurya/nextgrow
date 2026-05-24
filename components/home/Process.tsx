@@ -16,27 +16,33 @@ interface Step {
 const steps: Step[] = [
   {
     number: "01",
-    title: "DISCOVER",
+    title: "ASSESS",
     description:
-      "We dive into your market, audience, and competitors. No assumptions — just sharp research and real insight.",
+      "Deep understanding of your business model, target audience, competitive landscape, revenue goals, and current marketing gaps.",
   },
   {
     number: "02",
     title: "STRATEGIZE",
     description:
-      "We design the campaign architecture: which channels, which messages, which moments matter most for your brand.",
+      "We design the campaign architecture: positioning, messaging, acquisition channels, and customer journey mapping aligned to your objectives.",
   },
   {
     number: "03",
     title: "EXECUTE",
     description:
-      "Strategy meets production. From digital ads to on-ground activations — we deliver across every medium.",
+      "Campaign activation across digital and offline channels — content systems, performance marketing, and tracking infrastructure governed by clear KPIs.",
   },
   {
     number: "04",
+    title: "OPTIMIZE",
+    description:
+      "Continuous monitoring through analytics dashboards. A/B testing, creative refresh, budget reallocation, and funnel optimization every cycle.",
+  },
+  {
+    number: "05",
     title: "SCALE",
     description:
-      "We optimize relentlessly. What works gets amplified. What doesn't gets cut. Growth compounds from here.",
+      "Once benchmarks are validated, we scale winning strategies across larger budgets, new geographies, and additional channels with cost discipline.",
   },
 ];
 
@@ -59,8 +65,8 @@ function StepCard({ step, index, isInView, isLast }: StepCardProps) {
         ease: EASE_OUT_EXPO,
       }}
       className={[
-        /* Mobile: vertical stack with lime left border, overflow-hidden prevents deco number bleed */
-        "relative flex gap-5 pl-6 border-l-2 border-lime/40 overflow-hidden",
+        /* Mobile: vertical stack with left border, overflow-hidden prevents deco number bleed */
+        "relative flex gap-5 pl-6 border-l-2 border-ink/20 overflow-hidden",
         isLast ? "pb-0" : "pb-10",
         "md:flex-col md:pl-0 md:border-l-0 md:pb-0 md:overflow-visible",
       ].join(" ")}
@@ -81,18 +87,18 @@ function StepCard({ step, index, isInView, isLast }: StepCardProps) {
 
       {/* Step indicator dot — desktop only */}
       <div className="hidden md:flex items-center relative z-10 mb-5">
-        <div className="w-3 h-3 bg-lime flex-shrink-0" />
+        <div className="w-3 h-3 bg-ink flex-shrink-0" />
       </div>
 
-      {/* Mobile: lime dot — aligned to match border-l with pl-6 */}
+      {/* Mobile: dot — aligned to match border-l with pl-6 */}
       <div className="md:hidden flex-shrink-0 mt-1.5">
-        <div className="w-2.5 h-2.5 bg-lime -ml-[1.1875rem]" />
+        <div className="w-2.5 h-2.5 bg-ink/60 -ml-[1.1875rem]" />
       </div>
 
       {/* Card content */}
       <div className="relative z-10 flex flex-col gap-3 pt-1 md:pt-0">
         {/* Number label — small, above title on desktop */}
-        <span className="font-body text-xs text-lime tracking-[0.25em] uppercase">
+        <span className="font-body text-xs text-ink/50 tracking-[0.25em] uppercase">
           {step.number}
         </span>
 
@@ -132,7 +138,7 @@ export default function Process() {
         }}
       />
 
-      {/* Ghost decorative "04" */}
+      {/* Ghost decorative "05" */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute bottom-0 left-0 z-0 overflow-hidden select-none"
@@ -147,7 +153,7 @@ export default function Process() {
             lineHeight: 1,
           }}
         >
-          04
+          05
         </span>
       </div>
 
@@ -163,20 +169,35 @@ export default function Process() {
             className="flex items-center gap-3 mb-4"
           >
             <div className="h-px w-8 bg-lime" />
-            <span className="font-body text-lime text-xs uppercase tracking-[0.25em]">
+            <span className="font-body text-ink text-xs uppercase tracking-[0.25em]">
               How We Work
             </span>
           </motion.div>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.7, delay: 0.08, ease: EASE_OUT_EXPO }}
+          <h2
             className="font-display text-ink leading-[0.9]"
             style={{ fontSize: "clamp(2.8rem, 7vw, 6.5rem)" }}
           >
-            OUR PROCESS
-          </motion.h2>
+            <span className="block overflow-hidden">
+              <motion.span
+                className="block"
+                initial={{ y: "105%" }}
+                animate={isInView ? { y: "0%" } : { y: "105%" }}
+                transition={{ duration: 0.85, delay: 0.08, ease: EASE_OUT_EXPO }}
+              >
+                OUR PROCESS
+              </motion.span>
+            </span>
+          </h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+            transition={{ duration: 0.65, delay: 0.2, ease: EASE_OUT_EXPO }}
+            className="font-body text-sm text-ink/45 mt-5 max-w-2xl leading-relaxed"
+          >
+            Plan with clarity. Execute with precision. Optimize with discipline. Scale with control.
+          </motion.p>
         </div>
 
         {/* ── Steps container ──
@@ -192,7 +213,7 @@ export default function Process() {
             initial={{ scaleX: 0 }}
             animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
             transition={{ duration: 1.1, delay: 0.1, ease: EASE_OUT_EXPO }}
-            className="hidden md:block absolute left-0 right-0 h-px bg-lime/30 origin-left"
+            className="hidden md:block absolute left-0 right-0 h-px bg-ink/20 origin-left"
             /*
               The lime squares are rendered inside a flex container at the very
               top of each column. The line should pass through their vertical
@@ -203,7 +224,7 @@ export default function Process() {
           />
 
           {/* Steps grid */}
-          <div className="flex flex-col md:grid md:grid-cols-4 md:gap-8 lg:gap-12">
+          <div className="flex flex-col md:grid md:grid-cols-5 md:gap-6 lg:gap-8">
             {steps.map((step, index) => (
               <StepCard
                 key={step.number}

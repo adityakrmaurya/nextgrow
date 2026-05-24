@@ -21,16 +21,18 @@ interface StatDatum {
   target: number;
   /** Starting value for the counter animation */
   from: number;
-  /** Optional suffix rendered after the animated number ("+" or "") */
+  /** Optional suffix rendered after the animated number ("+" or "x") */
   suffix: string;
   label: string;
+  /** Decimal places to show (0 = integer, 1 = one decimal) */
+  decimals?: number;
 }
 
 const STATS: StatDatum[] = [
-  { target: 300,  from: 0,    suffix: "+", label: "Outdoor Ad\nLocations Pan-India" },
-  { target: 10,   from: 0,    suffix: "+", label: "Industries\nServed" },
-  { target: 6,    from: 0,    suffix: "",  label: "Full-Service\nVerticals" },
-  { target: 5,    from: 0,    suffix: "+", label: "Years of Delivering\nReal Growth" },
+  { target: 300,  from: 0,   suffix: "+",  label: "Outdoor Ad\nLocations Pan-India" },
+  { target: 18,   from: 0,   suffix: "+",  label: "Months Avg.\nClient Retention" },
+  { target: 3.2,  from: 1.0, suffix: "x",  label: "ROAS\nAchieved", decimals: 1 },
+  { target: 5,    from: 0,   suffix: "+",  label: "Years of Delivering\nReal Growth" },
 ];
 
 /* ── AnimatedCounter ────────────────────────────────────────────────────── */
@@ -39,14 +41,16 @@ interface AnimatedCounterProps {
   from: number;
   suffix: string;
   inView: boolean;
+  decimals?: number;
 }
 
-function AnimatedCounter({ target, from, suffix, inView }: AnimatedCounterProps) {
+function AnimatedCounter({ target, from, suffix, inView, decimals = 0 }: AnimatedCounterProps) {
   const count = useMotionValue(from);
-  const rounded = useTransform(count, Math.round);
+  const formatted = useTransform(count, (v) =>
+    decimals > 0 ? v.toFixed(decimals) : String(Math.round(v))
+  );
 
   useEffect(() => {
-    // Reset to start value whenever visibility changes
     if (!inView) {
       count.set(from);
       return;
@@ -60,7 +64,7 @@ function AnimatedCounter({ target, from, suffix, inView }: AnimatedCounterProps)
 
   return (
     <span className="inline-flex items-baseline tabular-nums leading-none">
-      <motion.span>{rounded}</motion.span>
+      <motion.span>{formatted}</motion.span>
       {suffix && (
         <span aria-hidden="true" className="ml-0.5">
           {suffix}
@@ -76,7 +80,7 @@ interface StatCardProps extends StatDatum {
   inView: boolean;
 }
 
-function StatCard({ target, from, suffix, label, index, inView }: StatCardProps) {
+function StatCard({ target, from, suffix, label, index, inView, decimals }: StatCardProps) {
   const isFirst = index === 0;
 
   return (
@@ -90,9 +94,9 @@ function StatCard({ target, from, suffix, label, index, inView }: StatCardProps)
       ]
         .filter(Boolean)
         .join(" ")}
-      initial={{ opacity: 0, y: 20 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay: 0.1 + index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0, scale: 0.86, y: 16 }}
+      animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
+      transition={{ duration: 0.75, delay: 0.1 + index * 0.12, ease: [0.16, 1, 0.3, 1] }}
     >
       {/* Number */}
       <div className="font-display text-7xl md:text-8xl lg:text-9xl text-ink leading-none">
@@ -101,6 +105,7 @@ function StatCard({ target, from, suffix, label, index, inView }: StatCardProps)
           from={from}
           suffix={suffix}
           inView={inView}
+          decimals={decimals}
         />
       </div>
 
@@ -134,8 +139,8 @@ export default function Stats() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="h-px w-8 bg-lime flex-shrink-0" aria-hidden="true" />
-          <span className="font-body text-lime text-xs uppercase tracking-[0.25em]">
-            By the Numbers
+          <span className="font-body text-ink text-xs uppercase tracking-[0.25em]">
+            Proof, Not Promises
           </span>
         </motion.div>
 
@@ -150,6 +155,30 @@ export default function Stats() {
             />
           ))}
         </div>
+
+        {/* ── ROAS note + CTA ── */}
+        <motion.div
+          className="mt-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.6, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <p className="font-body text-xs text-ink/40 leading-relaxed">
+            3.2x ROAS from documented case studies
+          </p>
+          <a
+            href="/case-studies"
+            className="group font-body text-xs font-semibold text-ink/60 uppercase tracking-widest inline-flex items-center gap-2 transition-colors duration-200 hover:text-ink"
+          >
+            See the results behind these numbers
+            <span
+              aria-hidden="true"
+              className="inline-block transition-transform duration-300 group-hover:translate-x-1"
+            >
+              →
+            </span>
+          </a>
+        </motion.div>
 
       </div>
     </section>

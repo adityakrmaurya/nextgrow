@@ -14,13 +14,18 @@ const WHATSAPP_URL = "https://wa.me/918317015652?text=Hi%20NextGrow%2C%20I%20wan
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [scrollPct, setScrollPct] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 32);
-    onScroll(); // initialise on mount
+    const onScroll = () => {
+      setScrolled(window.scrollY > 32);
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollPct(total > 0 ? (window.scrollY / total) * 100 : 0);
+    };
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -45,6 +50,12 @@ export default function Navbar() {
             : "bg-transparent"
         }`}
       >
+        {/* Scroll progress bar */}
+        <div
+          aria-hidden="true"
+          className="absolute bottom-0 left-0 h-[2px] bg-lime origin-left transition-[width] duration-75"
+          style={{ width: `${scrollPct}%` }}
+        />
         <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-[4.5rem] md:h-20">
           {/* Logo */}
           <Link
