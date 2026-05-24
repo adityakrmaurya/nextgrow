@@ -1,26 +1,81 @@
 @import "tailwindcss";
 
+/* ── Brand tokens ──────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #0A0A0A;
+  --cream: #F5F0E8;
+  --lime: #C4FF00;
+  --lime-dim: #A8D900;
+  --muted: #666666;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink: var(--ink);
+  --color-cream: var(--cream);
+  --color-lime: var(--lime);
+  --color-lime-dim: var(--lime-dim);
+  --color-muted: var(--muted);
+  --font-display: var(--font-bebas);
+  --font-body: var(--font-dm-sans);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base ──────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── Selection ─────────────────────────────────────── */
+::selection {
+  background: var(--lime);
+  color: var(--ink);
+}
+
+/* ── Scrollbar ─────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--ink); }
+::-webkit-scrollbar-thumb { background: var(--lime); }
+
+/* ── Marquee animation ─────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+/* ── Fade-up ─────────────────────────────────────────  */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fadeUp 0.7s ease forwards;
+}
+
+/* ── Reduced motion ────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .fade-up {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+  /* Keep marquee container layout stable when animation is disabled */
+  .animate-marquee {
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+  }
+  html { scroll-behavior: auto; }
 }
