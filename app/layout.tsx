@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Cursor from "@/components/layout/Cursor";
+import CursorGlow from "@/components/layout/CursorGlow";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 
 const bebasNeue = Bebas_Neue({
@@ -61,6 +62,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <SmoothScroll>
+          <CursorGlow />
           <Cursor />
           <Navbar />
           <main id="main-content">{children}</main>

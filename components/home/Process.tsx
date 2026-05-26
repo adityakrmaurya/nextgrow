@@ -122,7 +122,7 @@ export default function Process() {
 
         {/* Left column — step number + title (40%) */}
         <div className="w-[40%] pl-24 lg:pl-32 flex flex-col justify-center pr-8">
-          <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.3em] mb-4">How we work</p>
+          <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.35em] mb-4">004 · How we work</p>
           <div
             className="transition-opacity duration-120"
             style={{ opacity: contentVisible ? 1 : 0 }}
@@ -142,41 +142,65 @@ export default function Process() {
 
         {/* Right column — content (60%) */}
         <div
-          className="w-[60%] flex flex-col justify-center px-10 lg:px-16 border-l border-cream/8"
+          className="w-[60%] relative flex flex-col justify-center px-10 lg:px-16 border-l border-cream/8"
           style={{ opacity: contentVisible ? 1 : 0, transition: "opacity 120ms ease" }}
         >
-          <div>
-            <p className="font-body text-[0.65rem] uppercase tracking-[0.2em] text-cream/40 mb-4">Key activities</p>
-            <ul className="space-y-2 mb-8">
-              {step.activities.map((a) => (
-                <li key={a} className="flex items-center gap-3 font-body text-sm text-cream/70">
-                  <span className="w-1.5 h-1.5 rounded-full bg-lime shrink-0" />
-                  {a}
-                </li>
-              ))}
-            </ul>
+          {/* Faint outline-number watermark fills the previously-empty space */}
+          <span
+            aria-hidden="true"
+            className="absolute right-8 lg:right-16 bottom-8 lg:bottom-12 font-display text-[clamp(160px,22vw,300px)] leading-[0.78] text-cream/[0.04] select-none pointer-events-none"
+            style={{ WebkitTextStroke: "1px rgba(245,240,232,0.06)", color: "transparent" }}
+          >
+            {step.id}
+          </span>
 
-            <p className="font-body text-[0.65rem] uppercase tracking-[0.2em] text-cream/40 mb-4">Deliverables</p>
-            <ul className="flex flex-wrap gap-2">
-              {step.deliverables.map((d) => (
-                <li
-                  key={d}
-                  className="font-body text-[0.7rem] border border-lime/30 text-lime px-3 py-1 uppercase tracking-wider"
-                >
-                  {d}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div className="relative z-10 max-w-xl">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-2 mb-10">
+              <div>
+                <p className="font-body text-[0.65rem] uppercase tracking-[0.25em] text-cream/40 mb-4">
+                  Key activities
+                </p>
+                <ul className="space-y-2">
+                  {step.activities.map((a) => (
+                    <li key={a} className="flex items-center gap-3 font-body text-sm text-cream/75">
+                      <span className="w-1 h-1 rounded-full bg-lime shrink-0" />
+                      {a}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="lg:border-l lg:border-cream/8 lg:pl-10 mt-8 lg:mt-0">
+                <p className="font-body text-[0.65rem] uppercase tracking-[0.25em] text-cream/40 mb-4">
+                  Deliverables
+                </p>
+                <ul className="space-y-2">
+                  {step.deliverables.map((d) => (
+                    <li
+                      key={d}
+                      className="font-body text-sm text-lime flex items-center gap-3"
+                    >
+                      <span className="w-1 h-1 rounded-full bg-lime shrink-0" />
+                      {d}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
 
-          {/* Step progress */}
-          <div className="flex gap-1.5 mt-10">
-            {STEPS.map((_, i) => (
-              <span
-                key={i}
-                className={`block h-0.5 rounded-full transition-all duration-300 ${i === activeStep ? "w-10 bg-lime" : "w-2 bg-cream/15"}`}
-              />
-            ))}
+            {/* Step progress bar — aligned to bottom of content cluster */}
+            <div className="flex items-center gap-4 pt-6 border-t border-cream/8">
+              <div className="flex gap-1.5">
+                {STEPS.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`block h-0.5 rounded-full transition-all duration-300 ${i === activeStep ? "w-10 bg-lime" : "w-2 bg-cream/15"}`}
+                  />
+                ))}
+              </div>
+              <span className="font-body text-[0.6rem] uppercase tracking-[0.3em] text-cream/35 tabular-nums">
+                {String(activeStep + 1).padStart(2, "0")} of {String(STEPS.length).padStart(2, "0")}
+              </span>
+            </div>
           </div>
         </div>
       </div>

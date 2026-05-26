@@ -1,8 +1,11 @@
 "use client";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
+import { useGSAP } from "@gsap/react";
+import { gsap } from "@/lib/gsap";
 
 interface Industry {
   name: string;
+  short: string;
   services: string[];
   icon: React.ReactNode;
 }
@@ -10,167 +13,224 @@ interface Industry {
 const INDUSTRIES: Industry[] = [
   {
     name: "QSR & Food Service",
-    services: ["Hyperlocal targeting", "Offer campaigns", "Delivery platform optimization", "Offline activation"],
+    short: "QSR",
+    services: ["Hyperlocal", "Offers", "Delivery platforms", "Offline activation"],
     icon: <FoodIcon />,
   },
   {
     name: "Healthcare & Wellness",
-    services: ["Qualified patient leads", "Doctor branding", "Hospital positioning", "Compliance-aware content"],
+    short: "Health",
+    services: ["Patient leads", "Doctor branding", "Hospital positioning", "Compliance content"],
     icon: <HealthIcon />,
   },
   {
     name: "Real Estate & Property",
-    services: ["Project launches", "Investment messaging", "Site visit generation", "Lead nurturing"],
+    short: "Realty",
+    services: ["Project launches", "Investment messaging", "Site visits", "Lead nurturing"],
     icon: <RealEstateIcon />,
   },
   {
     name: "Retail & E-Commerce",
-    services: ["Omnichannel journeys", "Seasonal planning", "Inventory-based marketing", "CRO"],
+    short: "Retail",
+    services: ["Omnichannel", "Seasonal planning", "Inventory marketing", "CRO"],
     icon: <RetailIcon />,
   },
   {
     name: "FMCG & Consumer Goods",
-    services: ["Launch campaigns", "Trade marketing", "Influencer collaborations", "Packaging design"],
+    short: "FMCG",
+    services: ["Launch campaigns", "Trade marketing", "Influencer", "Packaging"],
     icon: <FMCGIcon />,
   },
   {
     name: "Professional Services & B2B",
-    services: ["Thought leadership", "LinkedIn strategy", "ABM", "Lead scoring"],
+    short: "B2B",
+    services: ["LinkedIn strategy", "Thought leadership", "ABM", "Lead scoring"],
     icon: <B2BIcon />,
   },
   {
-    name: "Media & Content Creation",
-    services: ["Audience building", "Platform algorithms", "Monetization", "Personal branding"],
+    name: "Media & Content",
+    short: "Media",
+    services: ["Audience building", "Algorithms", "Monetization", "Personal branding"],
     icon: <MediaIcon />,
   },
   {
     name: "Hospitality & Tourism",
-    services: ["Visual storytelling", "Reputation management", "Booking optimization", "Review management"],
+    short: "Hospo",
+    services: ["Visual storytelling", "Reputation", "Booking optimization", "Reviews"],
     icon: <HospitalityIcon />,
   },
 ];
 
 export default function Industries() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [visible, setVisible] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const ob = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); ob.disconnect(); } }, { threshold: 0.15 });
-    ob.observe(el);
-    return () => ob.disconnect();
-  }, []);
+  // Entrance — sequential stagger, scroll-triggered (matches Services / CaseStudies cadence)
+  useGSAP(
+    () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const cards = gridRef.current?.querySelectorAll<HTMLElement>(".industry-card");
+      if (!cards || cards.length === 0) return;
+
+      gsap.from(cards, {
+        opacity: 0,
+        y: 24,
+        duration: 0.7,
+        ease: "expo.out",
+        stagger: { each: 0.06, from: "start" },
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 75%",
+          once: true,
+        },
+      });
+    },
+    { scope: sectionRef }
+  );
 
   return (
-    <section ref={sectionRef} id="industries" className="py-20 px-6 md:px-12 lg:px-20">
-      <div className="mb-12">
-        <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.3em] mb-3">Industries</p>
-        <h2 className="font-display text-[clamp(36px,5vw,64px)] leading-none text-cream max-w-2xl">
-          Eight sectors. One repeatable growth system.
-        </h2>
-      </div>
-
-      {/* 3×3 grid on desktop, 2-col on mobile */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-cream/8">
-        {INDUSTRIES.map((ind, i) => (
-          <IndustryCell key={ind.name} industry={ind} index={i} visible={visible} />
-        ))}
-
-        {/* 9th cell — CTA */}
-        <a
-          href="/#contact"
-          className="relative bg-ink p-8 flex flex-col justify-between min-h-[200px] md:min-h-[240px] group overflow-hidden"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(12px)",
-            transition: "opacity 0.5s ease, transform 0.5s ease",
-            transitionDelay: `${INDUSTRIES.length * 60}ms`,
-          }}
-        >
-          {/* Pulse ring */}
-          <span className="absolute inset-0 border border-lime/20 animate-pulse" aria-hidden="true" />
-          <div className="w-8 h-8 text-lime">
-            <PlusIcon />
-          </div>
-          <div>
-            <p className="font-display text-2xl text-cream mb-1">Your industry?</p>
-            <p className="font-body text-sm text-cream/50 mb-3">Let's see if we're a fit.</p>
-            <span className="font-body text-[0.65rem] uppercase tracking-[0.2em] text-lime group-hover:underline">
-              Start a conversation →
+    <section
+      ref={sectionRef}
+      id="industries"
+      className="relative py-20 md:py-28 px-6 md:px-12 lg:px-20 overflow-hidden"
+    >
+      {/* Section heading — editorial template */}
+      <div className="relative z-10 mb-14 md:mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+        <div>
+          <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.35em] mb-4">
+            006 · Sectors we serve
+          </p>
+          <h2 className="font-display text-[clamp(36px,5vw,72px)] leading-[0.9] text-cream max-w-2xl">
+            Eight sectors.{" "}
+            <span className="text-lime">One repeatable</span> growth system.
+          </h2>
+        </div>
+        <div className="hidden md:flex flex-col items-end gap-3 shrink-0">
+          <div className="flex items-baseline gap-3">
+            <span className="font-display text-cream text-3xl lg:text-4xl leading-none tabular-nums">
+              08
+            </span>
+            <span className="font-body text-cream/40 text-[0.6rem] uppercase tracking-[0.3em]">
+              Sectors
             </span>
           </div>
-        </a>
+          <span className="block w-12 h-px bg-cream/15 mt-2" aria-hidden="true" />
+          <p className="font-body text-cream/35 text-[0.6rem] uppercase tracking-[0.3em]">
+            Hover any sector
+          </p>
+        </div>
+      </div>
+
+      {/* Card grid */}
+      <div
+        ref={gridRef}
+        className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+      >
+        {INDUSTRIES.map((ind, i) => (
+          <IndustryCard key={ind.name} industry={ind} index={i} />
+        ))}
+        <CTACard />
       </div>
     </section>
   );
 }
 
-function IndustryCell({ industry, index, visible }: { industry: Industry; index: number; visible: boolean }) {
-  const [hovered, setHovered] = useState(false);
-  const [expanded, setExpanded] = useState(false); // mobile tap
+function IndustryCard({ industry, index }: { industry: Industry; index: number }) {
+  const [pinned, setPinned] = useState(false);
+  const num = String(index + 1).padStart(2, "0");
 
   return (
     <div
-      className="relative bg-ink p-8 flex flex-col justify-between min-h-[200px] md:min-h-[240px] overflow-hidden group cursor-default"
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(12px)",
-        transition: "opacity 0.5s ease, transform 0.5s ease",
-        transitionDelay: `${index * 60}ms`,
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={() => setExpanded((v) => !v)}
+      className={`industry-card group relative rounded-2xl overflow-hidden border border-cream/10 bg-gradient-to-br from-cream/[0.03] via-ink to-ink hover:border-lime/45 transition-colors duration-500 min-h-[240px] cursor-pointer ${
+        pinned ? "is-pinned" : ""
+      }`}
+      onClick={() => setPinned((v) => !v)}
     >
-      {/* Hover lime border — stroke-dasharray approach */}
-      <svg
-        aria-hidden="true"
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ opacity: hovered ? 1 : 0, transition: "opacity 0.25s ease" }}
-      >
-        <rect
-          x="1" y="1"
-          width="calc(100% - 2px)" height="calc(100% - 2px)"
-          fill="none"
-          stroke="#C4FF00"
-          strokeWidth="1.5"
-          strokeDasharray="400"
-          strokeDashoffset={hovered ? "0" : "400"}
-          style={{ transition: "stroke-dashoffset 0.5s ease" }}
-        />
-      </svg>
-
-      {/* Icon */}
+      {/* Lime dot grid — matches CaseStudies / Services card vocabulary */}
       <div
-        className="w-8 h-8 text-cream/30 transition-colors duration-300"
-        style={{ color: hovered ? "#C4FF00" : undefined }}
-      >
-        {industry.icon}
-      </div>
+        aria-hidden="true"
+        className="absolute inset-0 opacity-[0.04] pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, #C4FF00 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+        }}
+      />
 
-      {/* Name */}
-      <div>
-        <p className="font-display text-xl md:text-2xl text-cream mb-3">{industry.name}</p>
+      <div className="relative h-full p-6 flex flex-col">
+        <div className="flex items-start justify-between">
+          <span className="font-body text-[0.62rem] tracking-[0.25em] text-cream/40 group-hover:text-lime group-[.is-pinned]:text-lime transition-colors duration-300 tabular-nums">
+            {num}
+          </span>
+          <span className="font-body text-[0.55rem] uppercase tracking-[0.3em] text-cream/30">
+            {industry.short}
+          </span>
+        </div>
 
-        {/* Sub-services — hover on desktop, tap-expand on mobile */}
-        <ul
-          className={`space-y-1 overflow-hidden transition-all duration-300 ${
-            hovered || expanded ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
-          }`}
-        >
-          {industry.services.map((s) => (
-            <li key={s} className="font-body text-[0.68rem] text-cream/45 flex items-center gap-2">
-              <span className="w-1 h-1 rounded-full bg-lime shrink-0" />{s}
-            </li>
-          ))}
-        </ul>
+        {/* Icon — breathes continuously, lifts on hover */}
+        <div className="mt-6 mb-4 w-9 h-9 text-cream/45 animate-industry-breathe transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:text-lime group-hover:-translate-y-3 group-hover:scale-110 group-[.is-pinned]:text-lime group-[.is-pinned]:-translate-y-3 group-[.is-pinned]:scale-110">
+          {industry.icon}
+        </div>
+
+        {/* Name — slides up and fades on hover, making room for capabilities */}
+        <p className="font-display text-xl md:text-2xl text-cream transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-4 group-hover:opacity-0 group-[.is-pinned]:-translate-y-4 group-[.is-pinned]:opacity-0">
+          {industry.name}
+        </p>
+
+        {/* Sub-services — absolute, slides up from below */}
+        <div className="absolute left-6 right-6 bottom-6 opacity-0 translate-y-3 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] delay-75 group-hover:opacity-100 group-hover:translate-y-0 group-[.is-pinned]:opacity-100 group-[.is-pinned]:translate-y-0">
+          <p className="font-body text-[0.58rem] uppercase tracking-[0.25em] text-lime mb-2">
+            Capabilities
+          </p>
+          <p className="font-body text-[0.74rem] text-cream/70 leading-[1.55]">
+            {industry.services.join(" · ")}
+          </p>
+        </div>
       </div>
     </div>
   );
 }
 
-// SVG icons — line-style
+function CTACard() {
+  return (
+    <a
+      href="/#contact"
+      className="industry-card group relative block rounded-2xl overflow-hidden border border-lime/40 bg-[#0e1408] hover:bg-[#141d0a] hover:border-lime transition-colors duration-500 min-h-[240px]"
+    >
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 rounded-2xl border border-lime/60 pointer-events-none animate-pulse-ring"
+      />
+
+      <div className="relative h-full p-6 flex flex-col">
+        <div className="flex items-start justify-between">
+          <span className="font-body text-[0.7rem] tracking-[0.25em] text-lime">+</span>
+          <span className="font-body text-[0.55rem] uppercase tracking-[0.3em] text-lime/55">
+            CTA
+          </span>
+        </div>
+
+        <div className="mt-6 mb-4 w-9 h-9 text-lime animate-industry-breathe transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-3 group-hover:scale-110">
+          <PlusIcon />
+        </div>
+
+        <div className="mt-auto">
+          <p className="font-display text-xl md:text-2xl text-lime mb-1.5">
+            Your industry?
+          </p>
+          <p className="font-body text-sm text-cream/55 mb-3">
+            Let&apos;s see if we&apos;re a fit.
+          </p>
+          <span className="font-body text-[0.62rem] uppercase tracking-[0.25em] text-lime group-hover:underline">
+            Start a conversation →
+          </span>
+        </div>
+      </div>
+    </a>
+  );
+}
+
+// ── Icons (line-stroke, matches CaseStudies / Services style) ───────────────
 function FoodIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>; }
 function HealthIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>; }
 function RealEstateIcon() { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>; }

@@ -74,16 +74,19 @@ const CASES: Case[] = [
   },
 ];
 
-// Clears fixed 80px navbar + 16px gap, then each card stacks 48px lower
-// than the previous, exposing a peek strip from each card behind.
+// Heading lives INSIDE the pin so it persists across the card stack — the
+// stack base clears the nav + heading block; each card peeks STACK_OFFSET
+// below the previous.
 const NAV_HEIGHT = 80;
+const HEADING_BLOCK = 140;
 const STACK_OFFSET = 48;
-const STACK_BASE = NAV_HEIGHT + 16;
+const STACK_BASE = NAV_HEIGHT + HEADING_BLOCK;
 
 export default function CaseStudies() {
   const trackRef = useRef<HTMLDivElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [activeIdx, setActiveIdx] = useState(0);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -93,8 +96,6 @@ export default function CaseStudies() {
     const pin = pinRef.current;
     if (cards.length === 0 || !pin) return;
 
-    // Cards beyond the first start translated below the viewport;
-    // each enters during its slice of the scrub.
     cards.forEach((c, i) => {
       if (i > 0) gsap.set(c, { yPercent: 100 });
     });
@@ -108,6 +109,10 @@ export default function CaseStudies() {
         scrub: 1,
         invalidateOnRefresh: true,
         anticipatePin: 1,
+        onUpdate: (self) => {
+          const idx = Math.round(self.progress * (cards.length - 1));
+          setActiveIdx(idx);
+        },
       },
     });
 
@@ -125,28 +130,49 @@ export default function CaseStudies() {
 
   return (
     <section id="case-studies" className="relative bg-ink">
-      {/* Section heading */}
-      <div className="px-6 md:px-12 lg:px-20 pt-24 md:pt-32 pb-12 md:pb-20">
-        <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.3em] mb-4">
-          Selected Work
-        </p>
-        <h2 className="font-display text-[clamp(44px,7vw,104px)] leading-[0.88] text-cream max-w-4xl">
-          Real campaigns.
-          <br />
-          <span className="text-lime">Hard numbers.</span>
-        </h2>
-        <p className="font-body text-cream/50 text-sm md:text-base max-w-xl mt-6">
-          Five clients. Five industries. One playbook applied to each — and the
-          measurable outcomes it produced.
-        </p>
-      </div>
-
-      {/* Desktop: pinned viewport with GSAP-driven card stacking */}
+      {/* Desktop: pinned viewport — heading persists at z-50 above the card stack */}
       <div ref={trackRef} className="hidden md:block relative">
-        <div
-          ref={pinRef}
-          className="h-screen overflow-hidden"
-        >
+        <div ref={pinRef} className="h-screen overflow-hidden">
+          {/* Persistent heading inside the pin */}
+          <div
+            data-case-heading=""
+            className="absolute top-0 left-0 right-0 z-50 px-6 md:px-12 lg:px-20 pt-24 pb-6 pointer-events-none"
+          >
+            <div className="flex items-end justify-between gap-8">
+              <div>
+                <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.35em] mb-3">
+                  005 · Selected Work
+                </p>
+                <h2 className="font-display text-[clamp(32px,4vw,60px)] leading-[0.9] text-cream max-w-3xl">
+                  Real campaigns.{" "}
+                  <span className="text-lime">Hard numbers.</span>
+                </h2>
+              </div>
+              {/* Active-idx counter — tells users where they are in the stack */}
+              <div className="hidden lg:flex flex-col items-end gap-3 pb-2 shrink-0">
+                <span className="font-display text-cream/70 text-lg leading-none tabular-nums">
+                  {String(activeIdx + 1).padStart(2, "0")}
+                  <span className="text-cream/25 mx-2">/</span>
+                  {String(CASES.length).padStart(2, "0")}
+                </span>
+                <div className="flex gap-1.5">
+                  {CASES.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`block h-[2px] transition-all duration-500 ${
+                        i === activeIdx ? "w-10 bg-lime" : "w-4 bg-cream/20"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <p className="font-body text-cream/35 text-[0.58rem] uppercase tracking-[0.3em] mt-1">
+                  {CASES[activeIdx]?.industry}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Card stack */}
           <div className="absolute inset-0 px-4 md:px-6 lg:px-8">
             {CASES.map((c, i) => (
               <CasePanel
@@ -318,22 +344,6 @@ const CasePanel = function CasePanel({
       <div
         className={`relative h-full rounded-3xl overflow-hidden bg-gradient-to-br ${case_.bg} border border-cream/10 shadow-[0_-20px_60px_-20px_rgba(0,0,0,0.6)] flex flex-col`}
       >
-        {/* Top strip — visible whenever later cards aren't fully covering it */}
-        <div className="absolute top-0 left-0 right-0 z-20 px-6 md:px-10 h-[52px] flex items-center justify-between border-b border-cream/10 bg-ink/30 backdrop-blur-[2px]">
-          <div className="flex items-center gap-4">
-            <span className="font-display text-cream text-2xl leading-none">
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <span className="hidden sm:inline-block w-px h-4 bg-cream/15" />
-            <span className="font-body text-cream/60 text-[0.62rem] uppercase tracking-[0.3em]">
-              {case_.industry}
-            </span>
-          </div>
-          <span className="font-body text-cream/40 text-[0.6rem] uppercase tracking-[0.3em]">
-            {index + 1} / {total}
-          </span>
-        </div>
-
         {/* Dot grid */}
         <div
           aria-hidden="true"
@@ -353,8 +363,11 @@ const CasePanel = function CasePanel({
           {String(index + 1).padStart(2, "0")}
         </span>
 
-        {/* Content block */}
-        <div className="relative z-10 flex-1 flex flex-col justify-end px-6 md:px-12 lg:px-20 pb-14 md:pb-20 pt-24 max-w-3xl min-h-0">
+        {/* Content block — industry eyebrow + client + objective + stats + CTA */}
+        <div className="relative z-10 flex-1 flex flex-col justify-end px-6 md:px-12 lg:px-20 pb-14 md:pb-20 pt-16 max-w-3xl min-h-0">
+          <p className="font-body text-lime/80 text-[0.62rem] uppercase tracking-[0.35em] mb-4">
+            {String(index + 1).padStart(2, "0")} · {case_.industry}
+          </p>
           <h3 className="font-display text-[clamp(44px,8vw,96px)] leading-[0.88] text-cream mb-5 overflow-hidden">
             <span
               className="block transition-transform duration-700"

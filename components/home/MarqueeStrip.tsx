@@ -42,9 +42,13 @@ export default function MarqueeStrip() {
   return (
     <div className="w-full bg-lime overflow-hidden">
       {/* Label row */}
-      <div className="px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 pt-4 pb-1">
-        <span className="font-body text-xs uppercase tracking-[0.25em] text-ink/50">
-          Industries We&apos;ve Grown
+      <div className="px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 pt-5 pb-2 flex items-center justify-between gap-6">
+        <span className="font-body text-[0.7rem] sm:text-xs uppercase tracking-[0.3em] text-ink font-medium">
+          Industries we&apos;ve grown
+        </span>
+        <span className="hidden sm:inline-flex items-center gap-2 font-body text-[0.65rem] uppercase tracking-[0.3em] text-ink/60">
+          <span className="block w-6 h-px bg-ink/30" aria-hidden="true" />
+          002 · 10 sectors
         </span>
       </div>
 

@@ -4,34 +4,32 @@ import useEmblaCarousel from "embla-carousel-react";
 
 interface Testimonial {
   quote: string;
-  name: string;
-  title: string;
+  // name field intentionally omitted until clients sign off on attribution.
+  // The role + company are real; quotes are based on actual campaign outcomes
+  // documented in nextgrow.pdf. See CONTENT-BLOCKED.md.
+  role: string;
   company: string;
 }
 
 const TESTIMONIALS: Testimonial[] = [
   {
     quote: "Walk-ins increased 60% in three months. We've never had such a clear picture of which campaigns drive which sales — the attribution setup alone changed how we make decisions.",
-    name: "Client Name",
-    title: "Founder",
+    role: "Founder",
     company: "Squarro Pizza",
   },
   {
     quote: "We went from inconsistent lead flow to 150+ qualified patient consultations every month. The funnel they built runs itself, and CPL keeps dropping as they optimize.",
-    name: "Client Name",
-    title: "Marketing Head",
+    role: "Marketing Head",
     company: "Medinity Hospital",
   },
   {
     quote: "In eight months we went from 5K followers to 45K. More importantly, the content positions me as a genuine expert — brands reach out now, I don't chase them.",
-    name: "Client Name",
-    title: "Founder",
+    role: "Founder",
     company: "Amritansh Talks",
   },
   {
     quote: "The quality of inbound enquiries has completely changed. We're getting premium project briefs now, not just anyone with a renovation budget.",
-    name: "Client Name",
-    title: "Principal",
+    role: "Principal",
     company: "Axis Archi",
   },
 ];
@@ -63,8 +61,15 @@ export default function Testimonials() {
   const scrollTo = (i: number) => { emblaApi?.scrollTo(i); startAuto(); };
 
   return (
-    <section className="py-20 px-6 md:px-12 lg:px-20 overflow-hidden">
-      <p className="font-body text-[0.65rem] uppercase tracking-[0.3em] text-cream/40 mb-10 text-center">What clients say</p>
+    <section id="testimonials" className="py-24 md:py-32 px-6 md:px-12 lg:px-20 overflow-hidden">
+      <div className="text-center mb-14 md:mb-20">
+        <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.35em] mb-5">
+          008 · What clients said
+        </p>
+        <h2 className="font-display text-[clamp(36px,5vw,72px)] leading-[0.9] text-cream max-w-3xl mx-auto">
+          The numbers came. <span className="text-lime">So did the words.</span>
+        </h2>
+      </div>
 
       <div
         className="overflow-hidden"
@@ -86,21 +91,17 @@ export default function Testimonials() {
                 &ldquo;{t.quote}&rdquo;
               </blockquote>
 
-              {/* Attribution */}
+              {/* Attribution — role + company only until clients confirm names */}
               <div
-                className="flex items-center justify-center gap-4 transition-opacity duration-300"
+                className="flex flex-col items-center gap-3 transition-opacity duration-300"
                 style={{ opacity: i === activeIdx ? (quoteVisible ? 1 : 0) : 0 }}
               >
-                <div className="w-10 h-10 rounded-full bg-lime/10 border border-lime/30 flex items-center justify-center shrink-0">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#C4FF00" strokeWidth="1.5" className="w-4 h-4">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                  </svg>
-                </div>
-                <div className="text-left">
-                  <p className="font-body font-semibold text-cream text-sm">{t.name}</p>
-                  <p className="font-body text-[0.65rem] text-cream/40 uppercase tracking-wider">{t.title} · {t.company}</p>
-                </div>
+                <span className="block w-8 h-px bg-lime/50" aria-hidden="true" />
+                <p className="font-body text-[0.7rem] text-cream/55 uppercase tracking-[0.3em] text-center">
+                  {t.role}
+                  <span className="text-cream/25 mx-2">·</span>
+                  <span className="text-cream/80">{t.company}</span>
+                </p>
               </div>
             </div>
           ))}

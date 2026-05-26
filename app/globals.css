@@ -81,6 +81,63 @@ body {
   animation: blob-drift 16s ease-in-out infinite;
 }
 
+/* ── Hero aurora blobs — staggered drifts so the lobes never beat in sync ── */
+@keyframes blob-1 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  50%      { transform: translate(15%, 10%) scale(1.10); }
+}
+@keyframes blob-2 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  50%      { transform: translate(-12%, 8%) scale(0.95); }
+}
+@keyframes blob-3 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  50%      { transform: translate(10%, -10%) scale(1.05); }
+}
+@keyframes blob-4 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  50%      { transform: translate(-8%, -12%) scale(0.90); }
+}
+.animate-blob-1 { animation: blob-1 18s ease-in-out infinite; }
+.animate-blob-2 { animation: blob-2 22s ease-in-out infinite; }
+.animate-blob-3 { animation: blob-3 26s ease-in-out infinite; }
+.animate-blob-4 { animation: blob-4 20s ease-in-out infinite; }
+
+/* ── CTA gradient border — conic sweep that rotates via @property ─────── */
+@property --cta-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.cta-spin-border {
+  background: conic-gradient(
+    from var(--cta-angle),
+    var(--lime) 0%,
+    transparent 25%,
+    var(--cream) 50%,
+    transparent 75%,
+    var(--lime) 100%
+  );
+}
+@keyframes cta-spin {
+  from { --cta-angle: 0deg; }
+  to   { --cta-angle: 360deg; }
+}
+.animate-cta-spin { animation: cta-spin 2s linear infinite; }
+
+/* ── Industries — icon breathe + CTA-ring pulse ─────────────────────── */
+@keyframes industry-breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
+}
+.animate-industry-breathe { animation: industry-breathe 4s ease-in-out infinite; }
+
+@keyframes pulse-ring {
+  0%, 100% { opacity: 0.30; transform: scale(1); }
+  50%      { opacity: 0.65; transform: scale(1.012); }
+}
+.animate-pulse-ring { animation: pulse-ring 2.6s ease-in-out infinite; }
+
 /* ── Fade-up ─────────────────────────────────────────  */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }

@@ -14,11 +14,12 @@ interface TeamMember {
   bio: string;
 }
 
-const TEAM: TeamMember[] = [
-  { name: "Team Member", role: "Growth Strategist", bio: "Details coming soon." },
-  { name: "Team Member", role: "Performance Lead", bio: "Details coming soon." },
-  { name: "Team Member", role: "Content Director", bio: "Details coming soon." },
-  { name: "Team Member", role: "MarTech Engineer", bio: "Details coming soon." },
+// Roles only — names omitted until team approves attribution. See CONTENT-BLOCKED.md.
+const TEAM: Omit<TeamMember, "name" | "bio">[] = [
+  { role: "Growth Strategist" },
+  { role: "Performance Lead" },
+  { role: "Content Director" },
+  { role: "MarTech Engineer" },
 ];
 
 export default function Founder() {
@@ -108,11 +109,13 @@ export default function Founder() {
     <section id="about" ref={sectionRef} className="py-20 overflow-hidden">
       {/* Split screen */}
       <div className="flex flex-col md:flex-row min-h-[80vh]">
-        {/* Portrait — left 60% */}
+        {/* Portrait — left 50% (was 60% but placeholder doesn't earn the real-estate;
+            tighten to 50/50 so body copy has breathing room. Bump back when real
+            portrait lands.) */}
         <div
           ref={portraitRef}
-          className="md:w-[60%] relative bg-cream/5 overflow-hidden"
-          style={{ minHeight: "60vw", maxHeight: "80vh" }}
+          className="md:w-1/2 relative bg-cream/5 overflow-hidden"
+          style={{ minHeight: "50vw", maxHeight: "80vh" }}
         >
           {/* Placeholder portrait — will be replaced with actual image */}
           <div className="absolute inset-0 bg-gradient-to-br from-ink via-[#0a1a00] to-ink flex items-center justify-center">
@@ -136,12 +139,12 @@ export default function Founder() {
           </svg>
         </div>
 
-        {/* Content — right 40% */}
+        {/* Content — right 50% */}
         <div
           ref={textRef}
-          className="md:w-[40%] px-8 md:px-12 lg:px-16 py-12 md:py-20 flex flex-col justify-center"
+          className="md:w-1/2 px-8 md:px-12 lg:px-16 py-12 md:py-20 flex flex-col justify-center"
         >
-          <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.3em] mb-6">Our story</p>
+          <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.35em] mb-6">007 · Our story</p>
           <h2 className="font-display text-[clamp(32px,4vw,52px)] leading-[1.05] text-cream mb-8">
             Founder &<br />Growth Strategist
           </h2>
@@ -186,7 +189,7 @@ export default function Founder() {
           {TEAM.map((member, i) => (
             <div
               key={i}
-              className="bg-cream/3 border border-cream/8 p-6 hover:border-lime/30 transition-colors duration-300"
+              className="bg-cream/[0.03] border border-cream/10 p-6 hover:border-lime/30 transition-colors duration-300"
               style={{
                 opacity: textVisible ? 1 : 0,
                 transform: textVisible ? "translateY(0)" : "translateY(16px)",
@@ -200,9 +203,10 @@ export default function Founder() {
                   <circle cx="12" cy="7" r="4"/>
                 </svg>
               </div>
-              <p className="font-body font-semibold text-cream text-sm mb-0.5">{member.name}</p>
-              <p className="font-body text-[0.65rem] uppercase tracking-wider text-lime mb-2">{member.role}</p>
-              <p className="font-body text-xs text-cream/40">{member.bio}</p>
+              <p className="font-body text-cream text-sm mb-1">{member.role}</p>
+              <p className="font-body text-[0.6rem] uppercase tracking-[0.25em] text-cream/35">
+                Lucknow team
+              </p>
             </div>
           ))}
         </div>

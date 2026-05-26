@@ -80,7 +80,7 @@ export default function Contact() {
   return (
     <section id="contact" className="py-20 px-6 md:px-12 lg:px-20">
       <div className="mb-12">
-        <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.3em] mb-3">Ready to grow?</p>
+        <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.35em] mb-3">009 · Ready to grow?</p>
         <h2 className="font-display text-[clamp(36px,5vw,64px)] leading-none text-cream">
           Tell us about your business.
         </h2>
