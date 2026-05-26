@@ -68,7 +68,10 @@ export default function Hero() {
     });
     tl.to(headlineRef.current, { y: -80, scale: 0.88, opacity: 0, ease: "none" });
 
-    return () => { ScrollTrigger.getAll().forEach((st) => st.kill()); };
+    return () => {
+      tl.scrollTrigger?.kill();
+      tl.kill();
+    };
   }, [mounted]);
 
   const handleCtaMove = (e: React.MouseEvent<HTMLAnchorElement>) => {

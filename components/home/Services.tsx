@@ -70,12 +70,8 @@ export default function Services() {
         const cards = gsap.utils.toArray<HTMLElement>(".service-card", track);
         if (cards.length === 0) return;
 
-        // True scroll distance: full track width minus the viewport.
         // offsetLeft of the last card already includes all preceding cards + gaps.
-        const getDistance = () => {
-          const last = cards[cards.length - 1];
-          return last.offsetLeft;
-        };
+        const getDistance = () => cards[cards.length - 1].offsetLeft;
 
         const tween = gsap.to(track, {
           x: () => -getDistance(),

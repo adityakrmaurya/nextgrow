@@ -65,7 +65,7 @@ export default function Process() {
     const panels = section.querySelectorAll<HTMLElement>(".process-step-panel");
 
     // Pin section for 5× viewport
-    ScrollTrigger.create({
+    const st = ScrollTrigger.create({
       trigger: section,
       start: "top top",
       end: `+=${STEPS.length * 100}%`,
@@ -88,7 +88,7 @@ export default function Process() {
       },
     });
 
-    return () => { ScrollTrigger.getAll().forEach((st) => st.kill()); };
+    return () => { st.kill(); };
   }, []);
 
   const step = STEPS[activeStep];

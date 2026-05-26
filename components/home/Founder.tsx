@@ -50,26 +50,35 @@ export default function Founder() {
 
     // Text paragraphs reveal on scroll
     const paragraphs = text.querySelectorAll<HTMLElement>(".founder-para");
+    const localTriggers: ScrollTrigger[] = [];
     paragraphs.forEach((p, i) => {
-      ScrollTrigger.create({
-        trigger: p,
-        start: "top 80%",
-        onEnter: () => {
-          gsap.fromTo(p, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out", delay: i * 0.05 });
-        },
-        once: true,
-      });
+      localTriggers.push(
+        ScrollTrigger.create({
+          trigger: p,
+          start: "top 80%",
+          onEnter: () => {
+            gsap.fromTo(p, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out", delay: i * 0.05 });
+          },
+          once: true,
+        })
+      );
     });
 
     // Section enter
-    ScrollTrigger.create({
-      trigger: section,
-      start: "top 70%",
-      onEnter: () => setTextVisible(true),
-      once: true,
-    });
+    localTriggers.push(
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top 70%",
+        onEnter: () => setTextVisible(true),
+        once: true,
+      })
+    );
 
-    return () => { ScrollTrigger.getAll().forEach((st) => st.kill()); };
+    return () => {
+      tl.scrollTrigger?.kill();
+      tl.kill();
+      localTriggers.forEach((st) => st.kill());
+    };
   }, []);
 
   // Signature draw
