@@ -90,19 +90,18 @@ body {
 
 /* ── Reduced motion ────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee,
-  .animate-marquee-reverse,
-  .animate-blob,
-  .fade-up {
-    animation: none;
-    transform: none;
-    opacity: 1;
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
   .animate-marquee,
   .animate-marquee-reverse {
     white-space: nowrap;
     overflow: hidden;
     width: 100%;
+    animation: none;
+    transform: none;
   }
   html { scroll-behavior: auto; }
 }

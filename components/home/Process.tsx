@@ -1,242 +1,216 @@
 "use client";
+import { useEffect, useRef, useState } from "react";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
-
-/* ── Easing ─────────────────────────────────────────────── */
-const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as const;
-
-/* ── Data ───────────────────────────────────────────────── */
 interface Step {
-  number: string;
+  id: string;
   title: string;
-  description: string;
+  duration: string;
+  activities: string[];
+  deliverables: string[];
 }
 
-const steps: Step[] = [
+const STEPS: Step[] = [
   {
-    number: "01",
-    title: "ASSESS",
-    description:
-      "Deep understanding of your business model, target audience, competitive landscape, revenue goals, and current marketing gaps.",
+    id: "01",
+    title: "Business & Market Assessment",
+    duration: "Weeks 1–2",
+    activities: ["Market research", "Competitor analysis", "Customer profiling", "KPI definition", "Gap analysis"],
+    deliverables: ["Diagnostic report", "KPI framework", "Audience personas"],
   },
   {
-    number: "02",
-    title: "STRATEGIZE",
-    description:
-      "We design the campaign architecture: positioning, messaging, acquisition channels, and customer journey mapping aligned to your objectives.",
+    id: "02",
+    title: "Strategic Framework & Positioning",
+    duration: "Weeks 3–4",
+    activities: ["Brand positioning framework", "Channel strategy", "Content direction", "Customer journey mapping", "Messaging house"],
+    deliverables: ["Strategy document", "Channel plan", "Creative brief"],
   },
   {
-    number: "03",
-    title: "EXECUTE",
-    description:
-      "Campaign activation across digital and offline channels — content systems, performance marketing, and tracking infrastructure governed by clear KPIs.",
+    id: "03",
+    title: "Execution & Deployment",
+    duration: "Weeks 5–8",
+    activities: ["Campaign builds", "Content production", "MarTech setup", "Pixel deployment", "Creative production"],
+    deliverables: ["Live campaigns", "Measurement infrastructure", "Content library"],
   },
   {
-    number: "04",
-    title: "OPTIMIZE",
-    description:
-      "Continuous monitoring through analytics dashboards. A/B testing, creative refresh, budget reallocation, and funnel optimization every cycle.",
+    id: "04",
+    title: "Measurement & Optimization",
+    duration: "Ongoing from Month 2",
+    activities: ["Weekly performance reviews", "A/B tests", "Creative refresh", "Budget reallocation", "Funnel optimization"],
+    deliverables: ["Performance reports", "Optimization log", "Iteration roadmap"],
   },
   {
-    number: "05",
-    title: "SCALE",
-    description:
-      "Once benchmarks are validated, we scale winning strategies across larger budgets, new geographies, and additional channels with cost discipline.",
+    id: "05",
+    title: "Scale & Expansion",
+    duration: "Month 4+",
+    activities: ["Budget scaling", "Geographic expansion", "New channel rollout", "Automation deepening", "Margin control"],
+    deliverables: ["Scale roadmap", "Expansion playbook", "New-market plan"],
   },
 ];
 
-/* ── Step Card ──────────────────────────────────────────── */
-interface StepCardProps {
-  step: Step;
-  index: number;
-  isInView: boolean;
-  isLast: boolean;
-}
-
-function StepCard({ step, index, isInView, isLast }: StepCardProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 28 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
-      transition={{
-        duration: 0.75,
-        delay: index * 0.12,
-        ease: EASE_OUT_EXPO,
-      }}
-      className={[
-        /* Mobile: vertical stack with left border, overflow-hidden prevents deco number bleed */
-        "relative flex gap-5 pl-6 border-l-2 border-ink/20 overflow-hidden",
-        isLast ? "pb-0" : "pb-10",
-        "md:flex-col md:pl-0 md:border-l-0 md:pb-0 md:overflow-visible",
-      ].join(" ")}
-    >
-      {/* Giant decorative number — hidden on mobile to avoid text obstruction */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute select-none hidden md:block"
-        style={{ top: "-0.25rem", left: "-0.5rem" }}
-      >
-        <span
-          className="font-display text-ink/[0.07] leading-none block"
-          style={{ fontSize: "clamp(5rem, 10vw, 7rem)" }}
-        >
-          {step.number}
-        </span>
-      </div>
-
-      {/* Step indicator dot — desktop only */}
-      <div className="hidden md:flex items-center relative z-10 mb-5">
-        <div className="w-3 h-3 bg-ink flex-shrink-0" />
-      </div>
-
-      {/* Mobile: dot — aligned to match border-l with pl-6 */}
-      <div className="md:hidden flex-shrink-0 mt-1.5">
-        <div className="w-2.5 h-2.5 bg-ink/60 -ml-[1.1875rem]" />
-      </div>
-
-      {/* Card content */}
-      <div className="relative z-10 flex flex-col gap-3 pt-1 md:pt-0">
-        {/* Number label — small, above title on desktop */}
-        <span className="font-body text-xs text-ink/50 tracking-[0.25em] uppercase">
-          {step.number}
-        </span>
-
-        {/* Title */}
-        <h3 className="font-display text-3xl text-ink leading-none tracking-wide">
-          {step.title}
-        </h3>
-
-        {/* Description */}
-        <p className="font-body text-sm text-ink/60 leading-relaxed max-w-xs">
-          {step.description}
-        </p>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ── Process Section ────────────────────────────────────── */
 export default function Process() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "-80px 0px" });
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const [activeStep, setActiveStep] = useState(0);
+  const [contentVisible, setContentVisible] = useState(true);
+  const prevStep = useRef(0);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const progress = progressRef.current;
+    if (!section || !progress) return;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (window.innerWidth < 768 || prefersReduced) return;
+
+    const panels = section.querySelectorAll<HTMLElement>(".process-step-panel");
+
+    // Pin section for 5× viewport
+    ScrollTrigger.create({
+      trigger: section,
+      start: "top top",
+      end: `+=${STEPS.length * 100}%`,
+      pin: true,
+      onUpdate: (self) => {
+        const raw = self.progress * STEPS.length;
+        const idx = Math.min(Math.floor(raw), STEPS.length - 1);
+        // Update progress line
+        if (progress) progress.style.height = `${self.progress * 100}%`;
+
+        if (idx !== prevStep.current) {
+          // Animate out
+          setContentVisible(false);
+          setTimeout(() => {
+            setActiveStep(idx);
+            prevStep.current = idx;
+            setContentVisible(true);
+          }, 120);
+        }
+      },
+    });
+
+    return () => { ScrollTrigger.getAll().forEach((st) => st.kill()); };
+  }, []);
+
+  const step = STEPS[activeStep];
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative w-full bg-cream py-24 md:py-32 overflow-hidden"
-    >
-      {/* Subtle noise texture — same as Services section */}
+    <>
+      {/* ── Desktop sticky timeline ── */}
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0 opacity-[0.02]"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")",
-          backgroundRepeat: "repeat",
-          backgroundSize: "256px 256px",
-        }}
-      />
-
-      {/* Ghost decorative "05" */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-0 z-0 overflow-hidden select-none"
+        id="process"
+        ref={sectionRef}
+        className="hidden md:flex relative min-h-screen bg-ink overflow-hidden"
       >
-        <span
-          className="font-display block text-ink"
-          style={{
-            fontSize: "clamp(14rem, 32vw, 30rem)",
-            opacity: 0.03,
-            letterSpacing: "0.02em",
-            transform: "translate(-10%, 30%)",
-            lineHeight: 1,
-          }}
-        >
-          05
-        </span>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 max-w-[1600px] mx-auto">
-
-        {/* Header */}
-        <div className="mb-14 md:mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-            transition={{ duration: 0.6, ease: EASE_OUT_EXPO }}
-            className="flex items-center gap-3 mb-4"
-          >
-            <div className="h-px w-8 bg-lime" />
-            <span className="font-body text-ink text-xs uppercase tracking-[0.25em]">
-              How We Work
-            </span>
-          </motion.div>
-
-          <h2
-            className="font-display text-ink leading-[0.9]"
-            style={{ fontSize: "clamp(2.8rem, 7vw, 6.5rem)" }}
-          >
-            <span className="block overflow-hidden">
-              <motion.span
-                className="block"
-                initial={{ y: "105%" }}
-                animate={isInView ? { y: "0%" } : { y: "105%" }}
-                transition={{ duration: 0.85, delay: 0.08, ease: EASE_OUT_EXPO }}
-              >
-                OUR PROCESS
-              </motion.span>
-            </span>
-          </h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-            transition={{ duration: 0.65, delay: 0.2, ease: EASE_OUT_EXPO }}
-            className="font-body text-sm text-ink/45 mt-5 max-w-2xl leading-relaxed"
-          >
-            Plan with clarity. Execute with precision. Optimize with discipline. Scale with control.
-          </motion.p>
+        {/* Far-left progress line */}
+        <div className="absolute left-8 lg:left-12 top-0 bottom-0 w-[2px] bg-cream/10 z-10">
+          <div
+            ref={progressRef}
+            className="absolute top-0 left-0 w-full bg-lime transition-none"
+            style={{ height: "0%" }}
+          />
+          {/* Step dots */}
+          {STEPS.map((_, i) => (
+            <div
+              key={i}
+              className={`absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-2 transition-colors duration-300 ${
+                i <= activeStep ? "bg-lime border-lime" : "bg-ink border-cream/20"
+              }`}
+              style={{ top: `${(i / (STEPS.length - 1)) * 100}%`, transform: "translate(-50%, -50%)" }}
+            />
+          ))}
         </div>
 
-        {/* ── Steps container ──
-            Mobile:  vertical stacked (flex-col), lime left border on each card
-            Desktop: horizontal 4-col grid with lime connector line across the top
-        ── */}
-        <div className="relative">
+        {/* Left column — step number + title (40%) */}
+        <div className="w-[40%] pl-24 lg:pl-32 flex flex-col justify-center pr-8">
+          <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.3em] mb-4">How we work</p>
+          <div
+            className="transition-opacity duration-120"
+            style={{ opacity: contentVisible ? 1 : 0 }}
+          >
+            <span
+              aria-hidden="true"
+              className="block font-display text-[clamp(80px,12vw,160px)] leading-none text-cream/6 mb-2 select-none"
+            >
+              {step.id}
+            </span>
+            <h2 className="font-display text-[clamp(28px,3.5vw,52px)] leading-[1.05] text-cream">
+              {step.title}
+            </h2>
+            <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.2em] mt-3">{step.duration}</p>
+          </div>
+        </div>
 
-          {/* Desktop connecting line — runs across the step-indicator row */}
-          {/* Positioned to bisect the lime squares (which are 12px tall, centered at ~20px from top of grid) */}
-          <motion.div
-            aria-hidden="true"
-            initial={{ scaleX: 0 }}
-            animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
-            transition={{ duration: 1.1, delay: 0.1, ease: EASE_OUT_EXPO }}
-            className="hidden md:block absolute left-0 right-0 h-px bg-ink/20 origin-left"
-            /*
-              The lime squares are rendered inside a flex container at the very
-              top of each column. The line should pass through their vertical
-              midpoint. The squares are 12px (h-3) and their container has mb-5.
-              We position at top: 6px (half of 12px).
-            */
-            style={{ top: "6px" }}
-          />
+        {/* Right column — content (60%) */}
+        <div
+          className="w-[60%] flex flex-col justify-center px-10 lg:px-16 border-l border-cream/8"
+          style={{ opacity: contentVisible ? 1 : 0, transition: "opacity 120ms ease" }}
+        >
+          <div>
+            <p className="font-body text-[0.65rem] uppercase tracking-[0.2em] text-cream/40 mb-4">Key activities</p>
+            <ul className="space-y-2 mb-8">
+              {step.activities.map((a) => (
+                <li key={a} className="flex items-center gap-3 font-body text-sm text-cream/70">
+                  <span className="w-1.5 h-1.5 rounded-full bg-lime shrink-0" />
+                  {a}
+                </li>
+              ))}
+            </ul>
 
-          {/* Steps grid */}
-          <div className="flex flex-col md:grid md:grid-cols-5 md:gap-6 lg:gap-8">
-            {steps.map((step, index) => (
-              <StepCard
-                key={step.number}
-                step={step}
-                index={index}
-                isInView={isInView}
-                isLast={index === steps.length - 1}
+            <p className="font-body text-[0.65rem] uppercase tracking-[0.2em] text-cream/40 mb-4">Deliverables</p>
+            <ul className="flex flex-wrap gap-2">
+              {step.deliverables.map((d) => (
+                <li
+                  key={d}
+                  className="font-body text-[0.7rem] border border-lime/30 text-lime px-3 py-1 uppercase tracking-wider"
+                >
+                  {d}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Step progress */}
+          <div className="flex gap-1.5 mt-10">
+            {STEPS.map((_, i) => (
+              <span
+                key={i}
+                className={`block h-0.5 rounded-full transition-all duration-300 ${i === activeStep ? "w-10 bg-lime" : "w-2 bg-cream/15"}`}
               />
             ))}
           </div>
         </div>
       </div>
-    </section>
+
+      {/* ── Mobile vertical stack ── */}
+      <div id="process-mobile" className="md:hidden px-6 py-16">
+        <p className="font-body text-lime text-[0.65rem] uppercase tracking-[0.3em] mb-4">How we work</p>
+        <h2 className="font-display text-[clamp(32px,8vw,52px)] leading-none text-cream mb-12">
+          A repeatable playbook for predictable growth.
+        </h2>
+
+        {/* Vertical step cards */}
+        {STEPS.map((s, i) => (
+          <div key={s.id} className="flex gap-6 mb-10 last:mb-0">
+            {/* Timeline */}
+            <div className="flex flex-col items-center pt-1">
+              <div className="w-3 h-3 rounded-full bg-lime shrink-0" />
+              {i < STEPS.length - 1 && <div className="w-[1px] bg-lime/30 flex-1 mt-2" />}
+            </div>
+            <div className="flex-1 pb-2">
+              <span className="font-display text-5xl text-cream/10 block leading-none mb-2">{s.id}</span>
+              <h3 className="font-display text-2xl text-cream mb-1">{s.title}</h3>
+              <p className="font-body text-[0.65rem] uppercase tracking-[0.2em] text-lime mb-4">{s.duration}</p>
+              <ul className="space-y-1.5">
+                {s.activities.map((a) => (
+                  <li key={a} className="font-body text-sm text-cream/55 flex items-center gap-2">
+                    <span className="w-1 h-1 rounded-full bg-lime/60 shrink-0" />{a}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
