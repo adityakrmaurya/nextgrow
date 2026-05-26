@@ -1,7 +1,8 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { useGSAP } from "@gsap/react";
+import { gsap } from "@/lib/gsap";
 
 interface Card {
   id: string;
@@ -55,37 +56,57 @@ export default function Services() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [modal, setModal] = useState<number | null>(null);
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    const track = trackRef.current;
-    if (!section || !track) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (window.innerWidth < 768) return;
+  useGSAP(
+    () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const cards = track.querySelectorAll<HTMLElement>(".service-card");
-    const cardW = window.innerWidth * 0.8;
+      const mm = gsap.matchMedia();
 
-    const tween = gsap.to(track, {
-      x: () => -(cards.length - 1) * cardW,
-      ease: "none",
-      scrollTrigger: {
-        trigger: section,
-        pin: true,
-        scrub: 1,
-        end: () => `+=${cards.length * 100}%`,
-        snap: 1 / (cards.length - 1),
-        onUpdate: (self) => {
-          const idx = Math.round(self.progress * (cards.length - 1));
-          setActiveIdx(idx);
-        },
-      },
-    });
+      mm.add("(min-width: 768px)", () => {
+        const section = sectionRef.current;
+        const track = trackRef.current;
+        if (!section || !track) return;
 
-    return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
-    };
-  }, []);
+        const cards = gsap.utils.toArray<HTMLElement>(".service-card", track);
+        if (cards.length === 0) return;
+
+        // True scroll distance: full track width minus the viewport.
+        // offsetLeft of the last card already includes all preceding cards + gaps.
+        const getDistance = () => {
+          const last = cards[cards.length - 1];
+          return last.offsetLeft;
+        };
+
+        const tween = gsap.to(track, {
+          x: () => -getDistance(),
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            pin: true,
+            scrub: 1,
+            invalidateOnRefresh: true,
+            anticipatePin: 1,
+            end: () => "+=" + getDistance(),
+            snap: {
+              snapTo: 1 / (cards.length - 1),
+              duration: { min: 0.15, max: 0.4 },
+              ease: "power2.inOut",
+            },
+            onUpdate: (self) => {
+              const idx = Math.round(self.progress * (cards.length - 1));
+              setActiveIdx(idx);
+            },
+          },
+        });
+
+        return () => {
+          tween.scrollTrigger?.kill();
+          tween.kill();
+        };
+      });
+    },
+    { scope: sectionRef }
+  );
 
   return (
     <>
